@@ -9,11 +9,14 @@ output: html_document
 library(readr)
 library(tidyverse)
 library(dplyr)
+library(modelr)
+library(ggrepel)
 ```
 
 
 ```{r}
 stats <- read.csv(file="bballdata.csv", header=TRUE, sep=",")
+stats$Player <- sub("\\\\.*", "", stats$Player)
 ```
 
 ***Overall Question***
@@ -32,6 +35,24 @@ stats <- read.csv(file="bballdata.csv", header=TRUE, sep=",")
 
 
 ***Individual Sections***
+
+*Tanner:*
+
+Question: How closely do teams follow the "Four Factors" idea when determining players' minutes? The Four Factors come from one of the original NBA analytics guys, Dean Oliver. He claimed that the Four Factors are a philosophy that correlates strongly to a team's success in a game. The Four Factors are as follows: (1) Score every possession, (2) Pick up offensive rebounds, (3) Get to the free throw line, and (4) Protect the ball. 
+
+These are philosophies that most coaches have been following for a long time, but I'm curious to see if it actually translates to playing time for their players. We will use effective FG% (eFG.), which is an adaptation of normal FG% that values three-pointers higher, Offensive Rebounds (ORB), free throw attempts (FTA), and turnovers (TOV), as well as minutes played per game (MP/G) to explore this question.
+
+```{r}
+four_factors <- stats %>% select(Player, Tm, MP, G, eFG., ORB, FTA, TOV)
+# initial plots to look for interesting trends
+ggplot(four_factors, aes(eFG., MP/G, color = Tm)) + geom_line()
+ggplot(four_factors, aes(ORB, MP/G, color = Tm)) + geom_line()
+ggplot(four_factors, aes(FTA, MP/G, color = Tm)) + geom_line()
+ggplot(four_factors, aes(TOV, MP/G, color = Tm)) + geom_line()
+
+all_mod <- lm(MP/G ~ eFG. + ORB + FTA + TOV, data = four_factors)
+summary(all_mod)
+```
 
 
 **Reflection**
