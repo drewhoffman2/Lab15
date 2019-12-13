@@ -20,16 +20,17 @@ stats$Player <- sub("\\\\.*", "", stats$Player)
 ```
 
 ***Overall Question***
-
+What is the most important statistic to get playing time for each position?
 
 *Why It's Important*
+This question is important because it can help us determine what statistics are necessary for a given player's position to improve their game.
 
 
 **Conclusion**
-
+git good lol
 
 **Recommendation**
-
+dont be bad
 
 *Graph*
 
@@ -56,6 +57,3 @@ summary(all_mod)
 
 
 **Reflection**
-
-
-**Who Did What**
