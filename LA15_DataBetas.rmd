@@ -55,5 +55,89 @@ all_mod <- lm(MP/G ~ eFG. + ORB + FTA + TOV, data = four_factors)
 summary(all_mod)
 ```
 
+*David*
 
-**Reflection**
+Russell Westbrook has been called one of the most overrated players in the NBA, but do his numbers support this claim? If the data support the conclusion that he is an average player, we will then claim he is overrated. Hence, our null hypothesis will be: Russel Westbrook is an average or worse NBA player. Our Alternate will be: Russel Westbrook is better than the average NBA player. In order to conduct this experiment, the stats I will be looking at will be points per game and minutes played per game.His points can tell us how good he is offensively and his minutes can give us an idea of how much respoonsibility the coaching staff gives him.
+
+Question: Is Russel Westbrook's "Overrated" status desserved? This question is interesting because we can use statistics to explain whether or not a specific player is as good as the average viewer thinks they are.
+
+New Tool: Permutation Test
+
+Answer: Based on the histograms and data below, we reject the null hypothesis in favor of the alternate. In essence, Russel Westbrook is not overrated and his points per game and minutes played per game support this claim. This relates to the overall question in that we are doing a study of a specific player's position. Since we have data that support Russel Westbrook is good at basketball, we can use him as an example for what other point guards should do to help them improve their game.
+
+Ethical Implications: The ethical implication of these findings are that I am using numbers to judge a person. This probably is not ethically right as there could certainly be other factors that contribute to how well somebody plays a certain position.
+
+```{r}
+
+#make a points per game and minutes per game col
+
+stats2 <- mutate(stats, ppg = PTS/G) %>%
+          mutate(mppg = MP/G)
+  
+
+#Compare his stats to other players of the same position
+
+Westbrook <- filter(stats2, Rk == 506)
+Pointgaurds <- filter(stats2, Pos == 'PG', G > 29) #ppg = 22.95, mppg = 36.03
+
+#get some averages
+
+mean(Pointgaurds$ppg) # 10.85
+mean(Pointgaurds$mppg) # 23.51
+
+#plot of pointgaurds' ppg and mppg
+
+ggplot() +
+  geom_point(Pointgaurds, mapping = aes(mppg, ppg), color = "blue") +
+  geom_point(Westbrook, mapping = aes(mppg, ppg), color = "red") +
+  ggtitle("NBA Pointguards' points per game vs minutes played per game") +
+  xlab("Minutes Played per Game") +
+  ylab("Points Per Game")
+
+#do a permuation test by sampling a bunch of ppg and mppg statistics for randomly sampled groups
+
+  #ppg test
+
+ppg <- select(Pointgaurds, ppg)
+
+vector.ppg <- vector("double", length = 100)
+for(i in seq_along(vector.ppg)){
+  vector.ppg[i] <- sample_n(ppg, 1)
+}
+
+
+ppg.df <- unlist(vector.ppg)
+  
+  #mppg test 
+
+mppg <- select(Pointgaurds, mppg)
+
+vector.mppg <- vector("double", length = 100)
+for(i in seq_along(vector.mppg)){
+  vector.mppg[i] <- sample_n(mppg, 1)
+}
+
+mppg.df <- unlist(vector.mppg)
+
+#ppg histogram
+ggplot() + geom_histogram(aes(ppg.df), bins = 20) +
+    geom_vline(xintercept =  mean(ppg.df), color = "purple") + #mean of sampled data
+    geom_vline(xintercept = 23, color = "red") + #Westbrook 
+    ggtitle("Distribution of NBA Points Per Game among Pointguards") +
+    xlab("Points per Game")
+
+#mppg histogram
+ggplot() + geom_histogram(aes(mppg.df), bins = 20) +
+    geom_vline(xintercept =  mean(mppg.df), color = "purple") + #mean of sampled data
+    geom_vline(xintercept = 36, color = "red") + #Westbrook 
+    ggtitle("Distribution of NBA Minutes Played Per Game among Pointguards") +
+    xlab("Minutes played per Game")
+
+```
+
+**Team Reflection**
+
+**Individual Reflections**
+
+*Davd*
+At the start of this course my goal for 6 months after college was to be travelling in Europe, my 5 year goal was that I wanted to be analayzing statistics. These goals haven't changed for me, but I do feel that I am more commited to achieving my 5 year goal as a result of this course. I achieved at lease a basic understanding of R in this course, considering that this is my first experience with data science and coding, I'm pretty satisfied with this result. The advice that I would give myself at the beginning of this semester would be to get a good understanding of the examples in the book.
