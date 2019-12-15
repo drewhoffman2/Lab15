@@ -10,6 +10,7 @@ library(readr)
 library(tidyverse)
 library(dplyr)
 library(modelr)
+library(stringr)
 library(ggrepel)
 ```
 
@@ -39,20 +40,32 @@ dont be bad
 
 *Tanner:*
 
-Question: How closely do teams follow the "Four Factors" idea when determining players' minutes? The Four Factors come from one of the original NBA analytics guys, Dean Oliver. He claimed that the Four Factors are a philosophy that correlates strongly to a team's success in a game. The Four Factors are as follows: (1) Score every possession, (2) Pick up offensive rebounds, (3) Get to the free throw line, and (4) Protect the ball. 
+Question: How critical is it for guards to be able to shoot the ball in order to get playing time?
 
-These are philosophies that most coaches have been following for a long time, but I'm curious to see if it actually translates to playing time for their players. We will use effective FG% (eFG.), which is an adaptation of normal FG% that values three-pointers higher, Offensive Rebounds (ORB), free throw attempts (FTA), and turnovers (TOV), as well as minutes played per game (MP/G) to explore this question.
+<Still need to do writeup>
 
 ```{r}
-four_factors <- stats %>% select(Player, Tm, MP, G, eFG., ORB, FTA, TOV)
-# initial plots to look for interesting trends
-ggplot(four_factors, aes(eFG., MP/G, color = Tm)) + geom_line()
-ggplot(four_factors, aes(ORB, MP/G, color = Tm)) + geom_line()
-ggplot(four_factors, aes(FTA, MP/G, color = Tm)) + geom_line()
-ggplot(four_factors, aes(TOV, MP/G, color = Tm)) + geom_line()
+guards <- stats %>% filter(str_detect(Pos, "PG|SG"), MP >= 820)
+guards <- guards %>% mutate("MPG" = MP/G, "PPG" = PTS/G)
+Simmons <- guards %>% filter(Player == "Ben Simmons")
+Curry <- guards %>% filter(Player == "Stephen Curry")
 
-all_mod <- lm(MP/G ~ eFG. + ORB + FTA + TOV, data = four_factors)
-summary(all_mod)
+efg_mod <- loess(MPG ~ eFG., data = guards)
+twos_mod <- loess(MPG ~ X2P., data = guards)
+threes_mod <- loess(MPG ~ X3P., data = guards)
+
+efg_grid <- guards %>% data_grid(eFG.)
+efg_grid <- efg_grid %>% add_predictions(efg_mod, var = "eFG_pred")
+two_grid <- guards %>% data_grid(X2P.)
+two_grid <- two_grid %>% add_predictions(twos_mod, var = "two_pred")
+three_grid <- guards %>% data_grid(X3P.)
+three_grid <- three_grid %>% add_predictions(threes_mod, var = "three_pred")
+
+ggplot(guards, aes(eFG.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=eFG_pred), data=efg_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_text_repel(aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" ,as.character(Player),'')))
+
+ggplot(guards, aes(X2P.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=two_pred), data=two_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_text_repel(aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" ,as.character(Player),'')))
+
+ggplot(guards, aes(X3P.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=three_pred), data=three_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_text_repel(aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" ,as.character(Player),'')))
 ```
 
 *David*
