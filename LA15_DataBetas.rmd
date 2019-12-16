@@ -18,7 +18,6 @@ library(ggrepel)
 ```{r}
 stats <- read.csv(file="bballdata.csv", header=TRUE, sep=",")
 stats$Player <- sub("\\\\.*", "", stats$Player) # keeps only the player's full name
-stats
 ```
 
 **Overall Question**
@@ -189,8 +188,22 @@ ggplot() + geom_histogram(aes(mppg.df), bins = 20) +
 **Ethical Implications:** This data is fairly obvious, and I do not see how it could be abused in any way, such as influencing future NBA games or drafts. Athletes are always judged based on their statistics over their career, and businesses capitalize on our obsession with sports through live betting, fantasy drafts, and more. Looking at a players statistics and noticing overall trends is a practice that has been exercised for years, and I would say that if it ever did have an effect on athletes, they get used to this scrutinization of their playing as their career progresses.
 
 ```{r}
-library(dplyr)
-AST_MP <- select(stats, MP, AST)
+AST_MP <- stats %>% select(Player, Tm, MP, AST,)
+AST_MP
+
+#Plot Detailing Trend#
+ggplot(AST_MP, mapping = aes(MP, AST))+
+  geom_point()+geom_smooth(se = FALSE)+
+  xlab("Minutes Played per Player")+
+  ylab("Assists per Player")
+
+#Looking at the five players with the most assists.#
+High_AST <- AST_MP %>% arrange(desc(AST)) %>% mutate(top5 = AST > 585)
+#Removing other Players from Data Frame.#
+High_AST <- High_AST %>% filter(top5 == 1)
+
+ggplot(High_AST, mapping = aes(MP, AST, color = Player))+geom_point()
+
 ```
 
 ### **Drew:**
