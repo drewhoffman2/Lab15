@@ -208,13 +208,103 @@ ggplot(High_AST, mapping = aes(MP, AST, color = Player))+geom_point()
 
 ### **Drew:**
 
-**Question:** 
+**Question:** How important is it for an NBA center to block shots and grab defensive rebounds while they are on the court?
 
-**New Tool:** 
+The NBA center is usually the backbone of any defensive unit. While offenses utilize their screen setting ability and size, holding their own on the defensive end is key for any NBA big man. In fact, 25 of the 37 Defensive Player of the Year awards have been awarded to a player that plays significant time at the position. Their role as an anchor and a big body that patrolls the paint allows the center to disrupt shots at the rim and make it harder for the other team to score close to the basket. They also need to be able to secure defensive rebounds in order to end opposing team's possessions and get the ball in the hands of their teammates. This begs the question, how proficient does a center need to be at blocking shots and grabbing boards to get time on the court?
 
-**Answer:** 
+To answer this, I will be normalizing the blocks and defensive rebounding stats of centers for a 36 minute pace and then regressing it against their minutes played per game. From this, we will see if there is a significant correlation between the variables. From there, we can determine if blocking shots or getting rebounds are skills that an NBA center needs in order to get time on the court.
 
-**Ethical Implications:**
+However, this will not tell the whole story. Centers in the NBA play traditionally fewer minutes than the average player due to the nature of their physical play and conditioning. It is easier for a smaller guard or quick wing player to stay on the court when they aren't constantly battling for post position, setting screens, or boxing out other 7 footers for rebounds. Often centers will start the game to set the defensive tone and create favorable matchups but not play a large quantity in the end. Because of this, I will also be regressing the blocks and rebounds data against "Start rate", or the proportion of games that the center started out of all games played. This will help give a holistic view of their value to the team that minutes per game might hide.
+
+Another caveat is that defensive rebounds aren't telling the whole story either. Players like Steven Adams are known for being very adept at boxing out players and allowing their teammates to secure the ball and push it up court faster than they would be able to. To improve this analysis, I would also need box out data, but this is a new statistic and is not standardized across the league.
+
+Null hypotheses: 
+
+There is no correlation between block rate and minutes played per game.
+
+There is no correlation between defensive rebounding rate and minutes played per game.
+
+Alternate hypotheses:
+
+There is a correlation between block rate and minutes played per game.
+
+There is a correlation between defensive rebounding rate and minutes played per game.
+
+**New Tool:** Correlation testing
+
+**Answer:** From the analysis, we can see that while block rate is not statistically significant in a player receving playing time, their rate of grabbing defensive rebounds is. The regression tests for block rate fall comfortably within the distribution so we fail to reject the null hypothesis that block rate has no effect on playing time. However, the regression test for defensive rebounding rate shows a statistically significant positive correlation between grabbing the rebound to end the possession and staying out on the court.
+
+**Ethical Implications:** This information shows how difficult it is to quantify a player's defensive value on the court. Blocks seem like they would do a good job of showing who is valuable on defense and who isn't, but as we can see blocking shots doesn't necessarily mean that a player is going to play more. Defensive rebounds provide more tangible value, but as I explained earlier there is more to the story. In order to improve player evaluation tools, we need more comprehensive statistics compared with team success as well as a holistic knowledge of the game to find out what the stats are telling. People tend to twist numbers in a way that supports their own narratives and opinions, in a way that extends past sports and into the real world. Recognizing that helps disseminate claims that are poorly supported. As with anything, understanding context is vital and there is a need for intellectual honesty when sharing data.
+
+```{r}
+#filter based on significant playing time and position
+centers <- filter(stats, Pos == 'C', MP > 200)
+
+#normalize blocks for 36 minute pace and caculate MPG
+centers <- mutate(centers, brate = (BLK/MP)*36) %>%
+  mutate(mppg = MP/G) %>%
+  mutate(srate = GS/G) %>%
+  mutate(drbrate = (DRB/MP)*36)
+
+#extracting vectors for testing
+blockrates <- centers$brate
+minutespg <- centers$mppg
+startrate <- centers$srate
+defrebrate <- centers$drbrate
+
+#correlation permutation code
+perm_cor <- function(perms = 1000, x, y)
+{
+  cor_coeffs <- numeric(perms)
+
+  for (i in c(1:perms))
+  {
+    mix_up <- sample(y)
+
+    coefficient <- cor(x, mix_up)
+    cor_coeffs[i] <- coefficient
+  }
+  
+  return(cor_coeffs)
+}
+
+#correlation test
+blocksmpgfakes <- perm_cor(1000, blockrates, minutespg)
+blockssratefakes <- perm_cor(1000, blockrates, startrate)
+blocksmpgreal <- cor(blockrates, minutespg)
+blockssratereal <- cor(blockrates, startrate)
+
+ggplot() + geom_histogram(aes(blocksmpgfakes)) +
+  geom_vline(xintercept = blocksmpgreal) +
+  ggtitle("Correlation Permutation Test Between Block Rate and Minutes Per Game") +
+  xlab("Correlation") +
+  ylab("Distribution")
+
+ggplot() + geom_histogram(aes(blockssratefakes)) +
+  geom_vline(xintercept = blockssratereal) +
+  ggtitle("Correlation Permutation Test Between Block Rate and Start Rate") +
+  xlab("Correlation") +
+  ylab("Distribution")
+
+boardsmpgfakes <- perm_cor(1000, defrebrate, minutespg)
+boardssratefakes <- perm_cor(1000, defrebrate, startrate)
+boardsmpgreal <- cor(defrebrate, minutespg)
+boardssratereal <- cor(defrebrate, startrate)
+
+ggplot() + geom_histogram(aes(boardsmpgfakes)) +
+  geom_vline(xintercept = boardsmpgreal) +
+  ggtitle("Correlation Permutation Test Between Defensive Rebounding Rate and Minutes Per Game") +
+  xlab("Correlation") +
+  ylab("Distribution")
+
+ggplot() + geom_histogram(aes(boardssratefakes)) +
+  geom_vline(xintercept = boardssratereal) +
+  ggtitle("Correlation Permutation Test Between Defensive Rebounding Rate and Start Rate") +
+  xlab("Correlation") +
+  ylab("Distribution")
+
+```
+
 
 # Team Reflection:
 
@@ -231,3 +321,7 @@ At the start of this course, my goal was for me to be able to develop the skills
 **Burke:**
 
 At the start of this semester, my future was very uncertain. I had just switched out of engineering for psychology, and I know that was the right decision for me. However, I felt a strange pressure in this transition. I was nervous my family would be dissapointed in my new educational path. However, I have found a real love for psychology in the past few months, and I think that in five years I will find myself in graduate school. The reason I am taking statistics courses is because I've read that knowledge in statistics is necessary for when I have to do academic research later in my career. If I could go back, I would simply tell myself to put the extra time in for my classes whenever possible, as I know I could have done better this semester.
+
+**Drew:**
+
+My goal at the beginning of the year was to eventually get an internship or job doing sports statistics for a professional team. My experience in this course has only reinforced that goal for me. In our labs I enjoyed analyzing and plotting the sports data to draw conclusions and I believe it is something that I could see myself doing in the future. I was able to learn more about the R language and how to use it as well as other useful practices like tidy data and different forms of analysis. If I could give myself any advice at the beginning of the semester I would tell myself to get on the lab assignments before Thursdays. Other than that, I thoroughly enjoyed my experence in this class and believe it will have a significant effect on me in my future career.
