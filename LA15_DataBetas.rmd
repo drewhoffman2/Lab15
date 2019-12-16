@@ -17,13 +17,13 @@ library(ggrepel)
 
 ```{r}
 stats <- read.csv(file="bballdata.csv", header=TRUE, sep=",")
-stats$Player <- sub("\\\\.*", "", stats$Player)
+stats$Player <- sub("\\\\.*", "", stats$Player) # keeps only the player's full name
 ```
 
-***Overall Question***
+**Overall Question**
 What is the most important statistic to get playing time for each position?
 
-*Why It's Important*
+**Why It's Important**
 This question is important because it can help us determine what statistics are necessary for a given player's position to improve their game.
 
 
@@ -36,24 +36,50 @@ dont be bad
 *Graph*
 
 
-***Individual Sections***
+# Individual Sections:
 
-*Tanner:*
+### **Tanner:**
 
-Question: How critical is it for guards to be able to shoot the ball in order to get playing time?
+**Question:** How critical is it for guards to be able to shoot the ball in order to get playing time?
 
-<Still need to do writeup>
+In an era where players are shooting more than ever, how much of a factor is shooting for guards to get playing time? Guards are typically seen as the better shooters on their team, so I was curious to see if playing time will always go up as shooting percentage goes up. For our dataset, we will be looking at guards who played at least 18 minutes per game, as these guys can be considered rotation players who regularly get in the game.
+
+We will be looking at three types of field goal percentages: (1) Effective Field Goal Percentage (eFG%), an adaptation of normal field goal percentage, which slightly favors three point shooting, (2) 2-Point Field Goal Percentage (2FG%), or the shooting percentage of our players on 2-point shots, and (3) 3-Point Field Goal Percentage (3FG%), which is the shooting percentage of our players on 3-point shots. 
+
+**New Tools:**  Linear Modeling
+
+We will also be pointing out three players in particular to see where they stand in our three models. Our three players are (1) Ben Simmons of the Philadelphia 76ers, an All-Star notorious for almost never shooting from outside the paint, (2) Stephen Curry of the Golden State Warriors, an All-Star who is arguably the greatest shooter of all time, and (3) Kyle Korver of the Cleveland Cavaliers and Utah Jazz, an aging veteran who is pretty much a 3-point specialist. 
+
+**Answer:** What we see isn't particularly surprising. Our predictions indicate that the better you shoot, the more minutes per game you are likely to play. However, when we look at our three highlighted players, we see something a little more interesting. 
+
+Ben Simmons, despite not hitting a single three-pointer all of last season, finished with a higher eFG% than sharpshooter Kyle Korver. This could be because Simmons played far more minutes than Korver, but if we look at two-point shooting we see that Simmons was far better than Korver inside the arc. In our three-point shooting chart, we can see that Simmons' inepitude from distance had seemingly no effect on his minutes per game. This outlier surely had a large effect on our prediction line for three-point shooting as well, bringing its starting point up much higher than it might be otherwise. There are also a few other points we can see that indicate that below-average three-point shooting does not necessarily hurt playing time.
+
+Kyle Korver, despite being an outstanding three-point shooter, does not get much playing time at all. At this stage of his career, it seems he is a middling role player at best. Possible reasons for this could be his age -- at 37 years old, he is among the oldest active players in the league -- or perhaps he falls far short in other areas of his game, hurting his ability to get playing time.
+
+This makes the case of Stephen Curry pretty interesting. Curry is without a doubt an incredible three-point shooter, finishing last season 6th in 3FG% among guards and with an eFG% greater than 60%, which is astounding given his playing time. However, as we just saw with Korver, there must be other factors at play to determine playing time. It may be fair to say that although Curry's red-hot shooting certainly gets him a lot of minutes, he must also be strong in other aspects of his game to warrant so much more playing time than most of his peers at his position.
+
+Based on our models and our look at these particular players, I think we can say that for most players, stronger shooting will get them more time on the floor (and in the case of players like Korver, it may be the only reason they're out there). However, guards with strong ability in other aspects of their game can likely get by without great shooting. Ben Simmons did not hit a single three-pointer all season and still finished among the highest in minutes played and was an NBA All-Star for the 76ers last season. Shooting is not the be-all and end-all for guards.
+
+**Ethical Implications:** I think something we can take away from these findings is that coaches, players, executives, and fans should not be so quick to judge a player solely on his ability to shoot the ball. Shooting has certainly grown in importance in the minds of fans and organizations, so it's understandable how this happens, but we should all still try to look at a player's full set of skills before determining their "rank" among their peers. Although a player should certainly work on his shooting, there are other ways to be a great player while the shot is still a work-in-progress.
+
 
 ```{r}
-guards <- stats %>% filter(str_detect(Pos, "PG|SG"), MP >= 820)
+# Set up our dataset - We will be looking at guards who played at least 18 mins/g (rotation players)
+guards <- stats %>% filter(str_detect(Pos, "PG|SG"))
 guards <- guards %>% mutate("MPG" = MP/G, "PPG" = PTS/G)
-Simmons <- guards %>% filter(Player == "Ben Simmons")
-Curry <- guards %>% filter(Player == "Stephen Curry")
+guards <- guards %>% filter(MPG >= 18)
 
-efg_mod <- loess(MPG ~ eFG., data = guards)
-twos_mod <- loess(MPG ~ X2P., data = guards)
-threes_mod <- loess(MPG ~ X3P., data = guards)
+# Three guards I wanted to look at in particular
+Simmons <- guards %>% filter(Player == "Ben Simmons") # All-Star who never shoots 3s
+Curry <- guards %>% filter(Player == "Stephen Curry") # All-Star who is arguably the greatest shooter ever
+Korver <- guards %>% filter(Player == "Kyle Korver") # 37-year-old 3pt specialist
 
+# Set up our models
+efg_mod <- lm(MPG ~ eFG., data = guards)
+twos_mod <- lm(MPG ~ X2P., data = guards)
+threes_mod <- lm(MPG ~ X3P., data = guards)
+
+# Setting up predictions
 efg_grid <- guards %>% data_grid(eFG.)
 efg_grid <- efg_grid %>% add_predictions(efg_mod, var = "eFG_pred")
 two_grid <- guards %>% data_grid(X2P.)
@@ -61,24 +87,27 @@ two_grid <- two_grid %>% add_predictions(twos_mod, var = "two_pred")
 three_grid <- guards %>% data_grid(X3P.)
 three_grid <- three_grid %>% add_predictions(threes_mod, var = "three_pred")
 
-ggplot(guards, aes(eFG.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=eFG_pred), data=efg_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_text_repel(aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" ,as.character(Player),'')))
+# eFG% by MPG
+ggplot(guards, aes(eFG.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=eFG_pred), data=efg_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_point(data=Korver, aes(y=MPG), color = "purple2") + geom_text_repel(data=guards, aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" | Player ==  "Kyle Korver" ,as.character(Player),'')), force=5) + ggtitle("Minutes per Game by Effective Field Goal Percentage", "2018-19 Point Guards and Shooting Guards") + xlab("Effective Field Goal Percentage") + ylab("Minutes per Game")
 
-ggplot(guards, aes(X2P.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=two_pred), data=two_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_text_repel(aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" ,as.character(Player),'')))
+# 2pt FG% by MPG
+ggplot(guards, aes(X2P.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=two_pred), data=two_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_point(data=Korver, aes(y=MPG), color = "purple2") + geom_text_repel(data=guards, aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" | Player ==  "Kyle Korver" ,as.character(Player),'')), force=10) + ggtitle("Minutes per Game by 2-Point Field Goal Percentage", "2018-19 Point Guards and Shooting Guards") + xlab("2-Point Field Goal Percentage") + ylab("Minutes per Game")
 
-ggplot(guards, aes(X3P.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=three_pred), data=three_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_text_repel(aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" ,as.character(Player),'')))
+# 3pt FG% by MPG
+ggplot(guards, aes(X3P.)) + geom_point(aes(y = MPG)) + geom_line(aes(y=three_pred), data=three_grid, color="red", size=1) + geom_point(data=Simmons, aes(y=MPG), color = "blue") + geom_point(data=Curry, aes(y=MPG), color = "goldenrod1") + geom_point(data=Korver, aes(y=MPG), color = "purple2") + geom_text_repel(data=guards, aes(y=MPG, label=ifelse(Player == "Stephen Curry" | Player == "Ben Simmons" | Player ==  "Kyle Korver" ,as.character(Player),'')), force=5) + ggtitle("Minutes per Game by 3-Point Field Goal Percentage", "2018-19 Point Guards and Shooting Guards") + xlab("3-Point Field Goal Percentage") + ylab("Minutes per Game")
 ```
 
-*David*
+### **David:**
 
 Russell Westbrook has been called one of the most overrated players in the NBA, but do his numbers support this claim? If the data support the conclusion that he is an average player, we will then claim he is overrated. Hence, our null hypothesis will be: Russel Westbrook is an average or worse NBA player. Our Alternate will be: Russel Westbrook is better than the average NBA player. In order to conduct this experiment, the stats I will be looking at will be points per game and minutes played per game.His points can tell us how good he is offensively and his minutes can give us an idea of how much respoonsibility the coaching staff gives him.
 
-Question: Is Russel Westbrook's "Overrated" status desserved? This question is interesting because we can use statistics to explain whether or not a specific player is as good as the average viewer thinks they are.
+**Question:** Is Russel Westbrook's "Overrated" status desserved? This question is interesting because we can use statistics to explain whether or not a specific player is as good as the average viewer thinks they are.
 
-New Tool: Permutation Test
+**New Tool:** Permutation Test
 
-Answer: Based on the histograms and data below, we reject the null hypothesis in favor of the alternate. In essence, Russel Westbrook is not overrated and his points per game and minutes played per game support this claim. This relates to the overall question in that we are doing a study of a specific player's position. Since we have data that support Russel Westbrook is good at basketball, we can use him as an example for what other point guards should do to help them improve their game.
+**Answer:** Based on the histograms and data below, we reject the null hypothesis in favor of the alternate. In essence, Russel Westbrook is not overrated and his points per game and minutes played per game support this claim. This relates to the overall question in that we are doing a study of a specific player's position. Since we have data that support Russel Westbrook is good at basketball, we can use him as an example for what other point guards should do to help them improve their game.
 
-Ethical Implications: The ethical implication of these findings are that I am using numbers to judge a person. This probably is not ethically right as there could certainly be other factors that contribute to how well somebody plays a certain position.
+**Ethical Implications:** The ethical implication of these findings are that I am using numbers to judge a person. This probably is not ethically right as there could certainly be other factors that contribute to how well somebody plays a certain position.
 
 ```{r}
 
@@ -148,9 +177,14 @@ ggplot() + geom_histogram(aes(mppg.df), bins = 20) +
 
 ```
 
-**Team Reflection**
+# Team Reflection:
 
-**Individual Reflections**
+### Individual Reflections:
 
-*Davd*
+**David:**
+
 At the start of this course my goal for 6 months after college was to be travelling in Europe, my 5 year goal was that I wanted to be analayzing statistics. These goals haven't changed for me, but I do feel that I am more commited to achieving my 5 year goal as a result of this course. I achieved at lease a basic understanding of R in this course, considering that this is my first experience with data science and coding, I'm pretty satisfied with this result. The advice that I would give myself at the beginning of this semester would be to get a good understanding of the examples in the book.
+
+**Tanner:**
+
+At the start of this course, my goal was for me to be able to develop the skills necessary to start doing my own projects and data science projects, in the hopes of finding a job in the future that maximizes my skills. I would say I achieved that goal. I have developed a solid understanding of the basics of R and data science, and am looking forward to trying my hand at some personal projects in the near future. My advice for myself would be to do more examples from the book or try developing a personal research project throughout the semester using the skills we were learning over time.
