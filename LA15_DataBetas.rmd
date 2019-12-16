@@ -193,6 +193,16 @@ library(dplyr)
 AST_MP <- select(stats, MP, AST)
 ```
 
+### **Drew:**
+
+**Question:** 
+
+**New Tool:** 
+
+**Answer:** 
+
+**Ethical Implications:**
+
 # Team Reflection:
 
 ### Individual Reflections:
