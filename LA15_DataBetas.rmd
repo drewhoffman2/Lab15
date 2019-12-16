@@ -313,7 +313,6 @@ ggplot() + geom_histogram(aes(boardssratefakes)) +
 **David:**
 
 At the start of this course my goal for 6 months after college was to be travelling in Europe, my 5 year goal was that I wanted to be analayzing statistics. These goals haven't changed for me, but I do feel that I am more commited to achieving my 5 year goal as a result of this course. I achieved at lease a basic understanding of R in this course, considering that this is my first experience with data science and coding, I'm pretty satisfied with this result. The advice that I would give myself at the beginning of this semester would be to get a good understanding of the examples in the book.
-
 **Tanner:**
 
 At the start of this course, my goal was for me to be able to develop the skills necessary to start doing my own projects and data science projects, in the hopes of finding a job in the future that maximizes my skills. I would say I achieved that goal. I have developed a solid understanding of the basics of R and data science, and am looking forward to trying my hand at some personal projects in the near future. My advice for myself would be to do more examples from the book or try developing a personal research project throughout the semester using the skills we were learning over time.
