@@ -18,6 +18,7 @@ library(ggrepel)
 ```{r}
 stats <- read.csv(file="bballdata.csv", header=TRUE, sep=",")
 stats$Player <- sub("\\\\.*", "", stats$Player) # keeps only the player's full name
+stats
 ```
 
 **Overall Question**
@@ -177,6 +178,21 @@ ggplot() + geom_histogram(aes(mppg.df), bins = 20) +
 
 ```
 
+### **Burke:**
+
+**Question:** How do assists per player attribute to total playing time?
+
+**New Tool:** Data Transformation and Pipes
+
+**Answer:** After modeling the data using a dot plot, their appears to be a trend in which higher number of assists is positively correlated with a higher number of minutes played total. This relationship, however, is likely not causal, because more time played on the court obviously gives players more opportunities to rack up assists.
+
+**Ethical Implications:** This data is fairly obvious, and I do not see how it could be abused in any way, such as influencing future NBA games or drafts. Athletes are always judged based on their statistics over their career, and businesses capitalize on our obsession with sports through live betting, fantasy drafts, and more. Looking at a players statistics and noticing overall trends is a practice that has been exercised for years, and I would say that if it ever did have an effect on athletes, they get used to this scrutinization of their playing as their career progresses.
+
+```{r}
+library(dplyr)
+AST_MP <- select(stats, MP, AST)
+```
+
 # Team Reflection:
 
 ### Individual Reflections:
@@ -188,3 +204,7 @@ At the start of this course my goal for 6 months after college was to be travell
 **Tanner:**
 
 At the start of this course, my goal was for me to be able to develop the skills necessary to start doing my own projects and data science projects, in the hopes of finding a job in the future that maximizes my skills. I would say I achieved that goal. I have developed a solid understanding of the basics of R and data science, and am looking forward to trying my hand at some personal projects in the near future. My advice for myself would be to do more examples from the book or try developing a personal research project throughout the semester using the skills we were learning over time.
+
+**Burke:**
+
+At the start of this semester, my future was very uncertain. I had just switched out of engineering for psychology, and I know that was the right decision for me. However, I felt a strange pressure in this transition. I was nervous my family would be dissapointed in my new educational path. However, I have found a real love for psychology in the past few months, and I think that in five years I will find myself in graduate school. The reason I am taking statistics courses is because I've read that knowledge in statistics is necessary for when I have to do academic research later in my career. If I could go back, I would simply tell myself to put the extra time in for my classes whenever possible, as I know I could have done better this semester.
