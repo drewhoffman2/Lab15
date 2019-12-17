@@ -305,6 +305,58 @@ ggplot() + geom_histogram(aes(boardssratefakes)) +
 
 ```
 
+### **Brandon**
+
+**Question:** What shooting are most affected by a players age?
+
+**New Tool:** QPlot and grid.arrange (Data Manipulation)
+
+**Answer:** Looking at the graphs and the means it is clear that a player in their Late 20s, 25 to 30, has the best mean stats for any shooting statistic. I kept the NA in the above 35 category in the 3 point shooting because I thought it would make sense that many older players don't take three point shots, this could be due to their shooting skills declining after being in the league for so long. The young players both under 20s and early 20s are very close to the late 20s players, but did not surpass them in any area. The only area that the late 20s were passed in was the mean of the late 30s players in three points, this could possibly be that the slightly older players like Rajon Rondo who is a three point specialist, just play their single position and shoot a lot more or are possibly more accurate than the late 20s in the three point shooting area.
+
+**Ethical Implications:** This could be useful for coaches and teams looking to pick up older players because it is always a risk to choose someone older because they are more prone to injury and they may start declining after a few years especially in their shooting overall, it would be much more beneficial to pick up a new young player and have them train and learn to become a better player so they can achieve their peak preformance in their late 20s.
+
+```{r}
+Under20 <- stats %>%  filter(Age < 20) %>% select(Age,FG,FGA,FG.,X3P,X3PA,X3P.,X2P,X2PA,X2P.,FT,FTA,FT.)
+Early20s <- stats %>% filter(Age >= 20 & Age < 25)%>% select(Age,FG,FGA,FG.,X3P,X3PA,X3P.,X2P,X2PA,X2P.,FT,FTA,FT.)
+Late20s <- stats %>% filter(Age >= 25 & Age < 30)%>% select(Age,FG,FGA,FG.,X3P,X3PA,X3P.,X2P,X2PA,X2P.,FT,FTA,FT.)
+Early30s <- stats %>% filter(Age >= 30 & Age < 35)%>% select(Age,FG,FGA,FG.,X3P,X3PA,X3P.,X2P,X2PA,X2P.,FT,FTA,FT.)
+Above35 <- stats %>% filter(Age >= 35)%>% select(Age,FG,FGA,FG.,X3P,X3PA,X3P.,X2P,X2PA,X2P.,FT,FTA,FT.)
+
+FGDF <- data.frame("Age" = c("Under 20", "Early 20s", "Late 20s","Early 30s","Above 35"), "Field Goals" = c(mean(Under20$FG), mean(Early20s$FG), mean(Late20s$FG), mean(Early30s$FG), mean(Above35$FG)) , "Field Goal Attempts" = c(mean(Under20$FGA), mean(Early20s$FGA), mean(Late20s$FGA), mean(Early30s$FGA), mean(Above35$FGA)))
+
+P3DF <- data.frame("Age" = c("Under 20", "Early 20s", "Late 20s","Early 30s","Above 35"), "Three Points" = c(mean(Under20$X3P), mean(Early20s$X3P), mean(Late20s$X3P), mean(Early30s$X3P), mean(Above35$FX3P)) , "Three Point Attempts" = c(mean(Under20$X3PA), mean(Early20s$X3PA), mean(Late20s$X3PA), mean(Early30s$X3PA), mean(Above35$X3PA)))
+
+P2DF <- data.frame("Age" = c("Under 20", "Early 20s", "Late 20s","Early 30s","Above 35"), "Two Points" = c(mean(Under20$X2P), mean(Early20s$X2P), mean(Late20s$X2P), mean(Early30s$X2P), mean(Above35$X2P)) , "Two Point Attempts" = c(mean(Under20$X2PA), mean(Early20s$X2PA), mean(Late20s$X2PA), mean(Early30s$X2PA), mean(Above35$X2PA)))
+
+FTDF <- data.frame("Age" = c("Under 20", "Early 20s", "Late 20s","Early 30s","Above 35"), "Free Throws" = c(mean(Under20$FT), mean(Early20s$FT), mean(Late20s$FT), mean(Early30s$FT), mean(Above35$FT)) , "Free Throw Attempts" = c(mean(Under20$FTA), mean(Early20s$FTA), mean(Late20s$FTA), mean(Early30s$FTA), mean(Above35$FTA)))
+#use gridExtra to combine the plots together
+
+#Field Goals
+FG <- qplot(Age, FG, data = stats) + ggtitle("Age vs Field Goals") + ylab("Field Goals")
+FGA <- qplot(Age, FGA, data = stats) + ggtitle("Age vs Field Goal Attempts") + ylab("Field Goal Attempts")
+FG. <- qplot(Age, FG., data = stats) + ggtitle("Age vs Field Goal Percentage") + ylab("Field Goal Percentage")
+grid.arrange(tableGrob(FGDF),FG,FGA,FG., nrow = 2, widths= c(5,4))
+
+  #Three Pointers
+X3P <- qplot(Age, X3P, data = stats) + ggtitle("Age vs Three Pointers") + ylab("Three Pointers")
+X3PA <- qplot(Age, X3PA, data = stats) + ggtitle("Age vs Three Point Attempts") + ylab("Three Point Attempts")
+X3P. <- qplot(Age, X3P., data = stats) + ggtitle("Age vs Three Point Percentage") + ylab("Three Point Percentage")
+grid.arrange(tableGrob(P3DF),X3P,X3PA,X3P., nrow = 2, widths= c(5,4))
+
+#Two Pointers
+X2P <- qplot(Age, X2P, data = stats) + ggtitle("Age vs Two Pointers") + ylab("Two Pointers")
+X2PA <- qplot(Age, X2PA, data = stats) + ggtitle("Age vs Two Point Attempts") + ylab("Two Point Attempts")
+X2P. <- qplot(Age, X2P., data = stats) + ggtitle("Age vs Two Point Percentage") + ylab("Two Point Percentage")
+grid.arrange(tableGrob(P2DF),X2P,X2PA,X2P., nrow = 2, widths= c(5,4))
+
+#Free Throws
+FT <- qplot(Age, FT, data = stats) + ggtitle("Age vs Free Throws") + ylab("Free Throws")
+FTA <- qplot(Age, FTA, data = stats) + ggtitle("Age vs Free Throw Attempts") + ylab("Free Throw Attempts")
+FT. <- qplot(Age, FT., data = stats) + ggtitle("Age vs Free Throw Percentage") + ylab("Free Throw Percentage")
+grid.arrange(tableGrob(FTDF),FT,FTA,FT., nrow = 2, widths= c(5,4))
+
+
+```
 
 # Team Reflection:
 
