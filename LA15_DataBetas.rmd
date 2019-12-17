@@ -34,7 +34,36 @@ For guards, we can conclude that they need more than just strong shooting to get
 **Recommendation**
 dont be bad
 
-*Graph*
+```{r}
+PTVariable <- stats %>% filter(MP > 100) %>% select(Age,MP,FG.,X3P.,X2P.,FT.,STL,BLK,PTS)
+
+cor(stats$MP, stats$Age)
+cor(stats$MP, stats$FG)
+cor(stats$MP, stats$X3P)
+cor(stats$MP, stats$X2P)
+cor(stats$MP, stats$FT)
+cor(stats$MP, stats$STL)
+cor(stats$MP, stats$BLK)
+cor(stats$MP, stats$PTS)
+
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = Age))
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = FG.))
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = X3P.))
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = X2P.))
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = FT.))
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = STL))
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = BLK))
+ggplot(data = PTVariable)+
+  geom_point(aes(x = MP, y = PTS))
+```
+
 
 
 # Individual Sections:
