@@ -22,15 +22,20 @@ stats$Player <- sub("\\\\.*", "", stats$Player) # keeps only the player's full n
 ```
 
 **Overall Question**
+
 What is the most important statistic to get playing time for each position?
 
 **Why It's Important**
-This question is important because it can help us determine what statistics are necessary for a given player's position to improve their game.
 
+This question is important because it can help us determine what statistics are necessary for a given player's position to improve their game. From there, a player knows what aspect of their skills they need to focus on in order to get on the court more often and help their team win.
 
 **Conclusion**
 
 For guards, we can conclude that they need more than just strong shooting to get playing time. In fact, guards don't necessarily have to be good shooters at all to get time, as long as they are strong in other areas, such as assists. We see this case highlighted by players like Ben Simmons, an All-Star who didn't hit a three-pointer all of last season, and Russell Westbrook, a below-average three-point shooter who often is called overrated, but still gets significant time because of his superior all-around game.
+
+For bigs, we conclude that a lot of the value that they provide on the court may not show up in the stat sheet. They contribute through physical play and helping set up the guards to score. They also play an important role in anchoring the defense. Defense is a difficult aspect of the game to quantify as well and requires better statistics, holistic analysis, and watching film. However, grabbing rebounds is an important part of the game for big players and in order to stay on the court, they need to be able to do so at a high level. 
+
+We also determined that age has an interesting effect on a player's ability to shoot the basketball. Players in their late 20's did the best overall, which makes sense because this is their athletic prime. Younger players performed slightly worse, as they are still getting used to playing in the NBA. Players in their early 30's are solid three point shooters as shooting specialists traditionally age well and have longer careers.
 
 **Recommendation**
 dont be bad
